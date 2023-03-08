@@ -31,7 +31,7 @@ class LoadFactOperator(BaseOperator):
         self.table_columns = table_columns
 
     def execute(self, context):
-        self.log.info(f'Started LoadFactOperator {self.table} started with truncate {self.truncate}')
+        self.log.info(f'Started LoadFactOperator on table {self.table} with truncate {self.truncate}')
         redshift_hook = PostgresHook(postgres_conn_id=self.conn_id)
         if not self.truncate:
             self.log.info(f'Append mode only')
