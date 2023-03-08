@@ -11,7 +11,7 @@ class StageToRedshiftOperator(BaseOperator):
         SECRET_ACCESS_KEY {}
         compupdate off region 'us-west-2'
     '''
-    
+
     insert = '''
         INSERT INTO {} {}
     '''
@@ -25,29 +25,19 @@ class StageToRedshiftOperator(BaseOperator):
 
     @apply_defaults
     def __init__(self,
-                 # Define your operators params (with defaults) here
-                 # Example:
-                 # redshift_conn_id=your-connection-name
                 table='',
                 redshift_conn_id='',
-                json_option='',
                 s3_bucket='',
                 s3_key='',
                 aws_credentials_id='',
-                formatting='',
                 *args, **kwargs):
 
         super(StageToRedshiftOperator, self).__init__(*args, **kwargs)
-        # Map params here
-        # Example:
-        # self.conn_id = conn_id
         self.table = table
         self.redshift_conn_id = redshift_conn_id
         self.s3_bucket = s3_bucket
-        # self.json_option=json_option
         self.s3_key = s3_key
         self.aws_credentials_id = aws_credentials_id
-        self.formatting = formatting
 
     def execute(self, context):
         self.log.info('Connecting to redshift')

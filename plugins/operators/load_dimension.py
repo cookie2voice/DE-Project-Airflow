@@ -7,7 +7,7 @@ class LoadDimensionOperator(BaseOperator):
     ui_color = '#80BD9E'
 
     load_dimention_table_insert = '''
-        INSERT INTO {} {}
+        INSERT INTO {} {} VALUES {}
     '''
 
     load_dimention_table_truncate = '''
@@ -16,28 +16,28 @@ class LoadDimensionOperator(BaseOperator):
 
     @apply_defaults
     def __init__(self,
-                 # Define your operators params (with defaults) here
-                 # Example:
-                 # conn_id = your-connection-name
                  redshift_conn_id='',
                  table='',
                  values='',
-                 operation='',
+                 truncate=False,
+                 table_columns='',
                  *args, **kwargs):
 
         super(LoadDimensionOperator, self).__init__(*args, **kwargs)
-        # Map params here
-        # Example:
         self.redshift_conn_id = redshift_conn_id
         self.table = table
         self.values = values
-        self.operation = operation
+        self.truncate = truncate
+        self.table_columns = table_columns
 
     def execute(self, context):
-        self.log.info(f'Started LoadDimensionOperator {self.table} started with operation {self.operation} ')
+        self.log.info(f'Started LoadDimensionOperator {self.table} started with truncate {self.truncate} ')
         redshift_hook = PostgresHook(postgres_conn_id=self.conn_id)
-        if self.operation == 'truncate':
+        if self.truncate:
+            self.log.info(f'Truncate-append mode')
             redshift_hook.run(LoadDimensionOperator.load_dimention_table_truncate.format(self.table))
-        if self.operation == 'append':
-            redshift_hook.run(LoadDimensionOperator.load_dimention_table_insert.format(self.table, self.values))
-        self.log.info(f'Ending LoadDimensionOperator {self.table} with {self.operation} sucess ')
+            redshift_hook.run(LoadDimensionOperator.load_dimention_table_insert.format(self.table, self.table_columns, self.values))
+        else:
+            self.log.info(f'Append mode only')
+            redshift_hook.run(LoadDimensionOperator.load_dimention_table_insert.format(self.table, self.table_columns, self.values))
+        self.log.info(f'Ending LoadDimensionOperator {self.table} with truncate {self.truncate} sucessfully')
